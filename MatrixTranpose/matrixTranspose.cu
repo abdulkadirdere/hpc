@@ -174,6 +174,31 @@ int main() {
         cudaMemcpy(h_result_matrix, d_output_matrix, memory_space_required, cudaMemcpyDeviceToHost);
         // printArray(h_result_matrix, WIDTH);
 
+         //-------------- CUDA Performance Metrics --------------//
+         float num_ops= num_element; // every element swap once
+  
+         float serial_throughput = num_ops / (serial_time / 1000.0f) / 1000000000.0f;
+         float global_throughput = num_ops / (global_elapsedTime / 1000.0f) / 1000000000.0f;
+         float shared_throughput = num_ops / (shared_elapsedTime / 1000.0f) / 1000000000.0f;
+ 
+         std::cout << "Matrix size: " << WIDTH << "x" << WIDTH << std::endl;
+         std::cout << "Tile size: " << TILE_WIDTH << "x" << TILE_WIDTH << std::endl;
+ 
+         printf("Serial Matrix Transpose Time: %3.6f ms \n", serial_time);
+         printf("Global Memory Time elpased: %3.6f ms \n", global_elapsedTime);
+         printf( "Shared Memory Time elpased: %3.6f ms \n", shared_elapsedTime );
+ 
+         std::cout << "\nSpeedup of global memory kernel (CPU/GPU): " << serial_time / global_elapsedTime << " ms" << std::endl;
+         std::cout << "Speedup of shared memory kernel (CPU/GPU): " << serial_time / shared_elapsedTime << " ms" << std::endl;
+       
+         std::cout << "\nThroughput of serial implementation: " << serial_throughput << " GFLOPS" << std::endl;
+         std::cout << "Throughput of global memory kernel: " << global_throughput << " GFLOPS" << std::endl;
+         std::cout << "Throughput of shared memory kernel: " << shared_throughput << " GFLOPS" << std::endl;
+         std::cout << "Performance improvement: simple over global " << serial_throughput / global_throughput << "x" << std::endl;
+         std::cout << "Performance improvement: simple over shared " << serial_throughput / shared_throughput << "x" << std::endl;
+         std::cout << "Performance improvement: global over shared " << global_throughput / shared_throughput << "x" << std::endl;
+
+        //-------------- Free Memory --------------//
         free(h_input_matrix);
         free(h_result_matrix);
         cudaFree(d_input_matrix);
