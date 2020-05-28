@@ -17,21 +17,30 @@ const int mask_size = 3;
 const int offset = floor(mask_size/2);
 const int padded_size = size + 2*offset;
 
-// const double mask[3][3] = {
-//     {1, 1, 1},
-//     {1, 1, 1},
-//     {1, 1, 1},
+const double mask[mask_size][mask_size] = {
+    {1, 1, 1},
+    {1, 1, 1},
+    {1, 1, 1},
+};
+
+// gaussian
+// const double mask[mask_size][mask_size] = {
+//     {0, 0, -1, 0, 0},
+//     {0, -1, -2, -1, 0},
+//     {-1, -2, 16, -2, -1},
+//     {0, -1, -2, -1, 0},
+//     {0, 0, -1, 0, 0},
 // };
 
 // edge detection
-const double mask[3][3] = {
-    {-1, 0, 1},
-    {-2, 0, 2},
-    {-1, 0, 1},
-};
+// const double mask[mask_size][mask_size] = {
+//     {-1, 0, 1},
+//     {-2, 0, 2},
+//     {-1, 0, 1},
+// };
 
 // sharpenning
-// const double mask[3][3] = {
+// const double mask[mask_size][mask_size] = {
 //     {-1, -1, -1},
 //     {-1,  9, -1},
 //     {-1, -1, -1},
@@ -123,19 +132,28 @@ double applyMask(double **array, int row, int col){
     // neighbours of given location
     double **neighbours = allocateMatrix(n_size, n_size);
 
-    int range = padded_size - offset;
+    // dynamically get the neighbours
+    int n1 = 0;
+    for (int r=row - 1; r <= row + offset; r++){
+        int n2 = 0;
+        for (int c =col - 1; c <= col + offset; c++){
+            neighbours[n1][n2] = array[r][c];
+            n2++;
+        }
+        n1++;
+    }
 
-    neighbours[0][0] = array[row-1][col-1]; // top_left
-    neighbours[0][1] = array[row-1][col]; // top_middle
-    neighbours[0][2] = array[row-1][col+1]; //top_right
+    // neighbours[0][0] = array[row-1][col-1]; // top_left
+    // neighbours[0][1] = array[row-1][col]; // top_middle
+    // neighbours[0][2] = array[row-1][col+1]; //top_right
 
-    neighbours[1][0] = array[row][col-1]; //middle_left
-    neighbours[1][1] = array[row][col]; //middle_middle
-    neighbours[1][2] = array[row][col+1]; //middle_right
+    // neighbours[1][0] = array[row][col-1]; //middle_left
+    // neighbours[1][1] = array[row][col]; //middle_middle
+    // neighbours[1][2] = array[row][col+1]; //middle_right
 
-    neighbours[2][0] = array[row+1][col-1]; //bottom_left
-    neighbours[2][1] = array[row+1][col]; //bottom_middle
-    neighbours[2][2] = array[row+1][col+1]; //bottom_right
+    // neighbours[2][0] = array[row+1][col-1]; //bottom_left
+    // neighbours[2][1] = array[row+1][col]; //bottom_middle
+    // neighbours[2][2] = array[row+1][col+1]; //bottom_right
 
     // printArray(neighbours, n_size, n_size);
 
@@ -191,8 +209,8 @@ int main(int argc, char **argv){
 
     // convert image to 2D
     double **image =  convert2D(hData, width, height);
-    printf("Input image \n");
-    printArray(image, 10, 10);
+    // printf("Input image \n");
+    // printArray(image, 10, 10);
 
     // allocate space for padded image
     double **padded = allocateMatrix(padded_size, padded_size);
@@ -209,8 +227,8 @@ int main(int argc, char **argv){
     // unpad the array
     double **unpadded = allocateMatrix(padded_size, padded_size);
     unpadded = unpad(output, unpadded);
-    printf("unpadded image \n");
-    printArray(unpadded, 10, 10);
+    // printf("unpadded image \n");
+    // printArray(unpadded, 10, 10);
 
     // update array
     float *result_image;
@@ -228,5 +246,4 @@ int main(int argc, char **argv){
     free(output);
     free(unpadded);
     free(result_image);
-
 }
